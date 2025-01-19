@@ -14,11 +14,19 @@ import java.util.Date;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.server.LocalServerPort;
 
+import de.leifker.StructuredTaskScopesApplication;
 import us.abstracta.jmeter.javadsl.core.TestPlanStats;
 import us.abstracta.jmeter.javadsl.core.threadgroups.BaseThreadGroup;
 
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = StructuredTaskScopesApplication.class)
 public class JMeterMainControllerTests {
+
+	@LocalServerPort
+	private int port;
 
 	@Test
 	@DisplayName("Test high load of fast concurrent service implemented with java-class")
@@ -27,7 +35,7 @@ public class JMeterMainControllerTests {
 		var reportName = testname + "-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm").format(new Date());
 		var htmlReportName = "html-report-" + reportName;
 
-		var endpoint = "http://localhost:8080/api/fast/java-class/infos/kai";
+		var endpoint = "http://localhost:" + port + "/api/fast/java-class/infos/kai";
 
 		BaseThreadGroup.ThreadGroupChild[] scenario = { httpSampler(endpoint), //
 				jtlWriter("C:/Users/kaile/Documents/JMeter/jtl-" + reportName + ".jtl") };
@@ -58,7 +66,7 @@ public class JMeterMainControllerTests {
 		var reportName = testname + "-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm").format(new Date());
 		var htmlReportName = "html-report-" + reportName;
 
-		var endpoint = "http://localhost:8080/api/fast/own-class/infos/kai";
+		var endpoint = "http://localhost:" + port + "/api/fast/own-class/infos/kai";
 
 		BaseThreadGroup.ThreadGroupChild[] scenario = { httpSampler(endpoint), //
 				jtlWriter("C:/Users/kaile/Documents/JMeter/jtl-" + reportName + ".jtl") };
@@ -81,27 +89,27 @@ public class JMeterMainControllerTests {
 		assertThat(stats.overall().sampleTime().mean()).isLessThan(Duration.ofMillis(100));
 		assertThat(stats.overall().sampleTime().perc90()).isLessThan(Duration.ofMillis(150));
 	}
-	
+
 	@Test
 	@DisplayName("Test high load of slow synchronous service")
 	void testHighLoadStructuredTaskSynchronous() throws IOException {
 		var testname = "Synchronous";
 		var reportName = testname + "-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm").format(new Date());
 		var htmlReportName = "html-report-" + reportName;
-		
-		var endpoint = "http://localhost:8080/api/slow/infos/kai";
-		
+
+		var endpoint = "http://localhost:" + port + "/api/slow/infos/kai";
+
 		BaseThreadGroup.ThreadGroupChild[] scenario = { httpSampler(endpoint), //
 				jtlWriter("C:/Users/kaile/Documents/JMeter/jtl-" + reportName + ".jtl") };
-		
+
 		TestPlanStats stats = testPlan(//
 				rpsThreadGroup(testname + "-synchronous") //
-				.rampTo(50, Duration.ofSeconds(10)) //
-				.holdFor(Duration.ofSeconds(20)) //
-				.children(scenario), //
+						.rampTo(50, Duration.ofSeconds(10)) //
+						.holdFor(Duration.ofSeconds(20)) //
+						.children(scenario), //
 				htmlReporter("C:/Users/kaile/Documents/JMeter/" + htmlReportName) //
-				).run();
-		
+		).run();
+
 		System.out.println("synchronous - Errors: " + stats.overall().errorsCount());
 		System.out.println("synchronous - Samples: " + stats.overall().samplesCount());
 		System.out.println("synchronous - SamplesTime 99Percentile: " + stats.overall().sampleTime().perc99());
