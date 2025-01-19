@@ -14,15 +14,21 @@ import java.util.Date;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.leifker.StructuredTaskScopesApplication;
 import us.abstracta.jmeter.javadsl.core.TestPlanStats;
 import us.abstracta.jmeter.javadsl.core.threadgroups.BaseThreadGroup;
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = StructuredTaskScopesApplication.class)
+@AutoConfigureMockMvc
+@ExtendWith(SpringExtension.class)
+@TestPropertySource(locations = "classpath:application-integrationtest.properties")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = StructuredTaskScopesApplication.class)
 public class JMeterMainControllerTests {
 
 	@LocalServerPort
