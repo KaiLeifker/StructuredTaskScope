@@ -28,7 +28,6 @@ public class MainController {
 
 	@GetMapping("/fast/java-class/infos/{name}")
 	Infos getInfosByJavaClass(@PathVariable String name) {
-		System.out.println("/fast/java-class/infos/" + name);
 		return getAllAvailableInfos(name);
 //		return getAllInfosOrException(name);
 //		return getFastestInfos(name);
@@ -51,7 +50,6 @@ public class MainController {
 			if (facebookResponse.state() == State.SUCCESS) {
 				results.add(facebookResponse.get());
 			}
-			results.forEach(System.out::println);
 			return results.stream().max(Comparator.comparingInt(infos -> infos.info().size())).orElseThrow();
 		}
 	}
@@ -84,27 +82,23 @@ public class MainController {
 			results.add(googleResponse.get());
 			results.add(linkedinResponse.get());
 			results.add(facebookResponse.get());
-				results.forEach(System.out::println);
 			return results.stream().max(Comparator.comparingInt(infos -> infos.info().size())).orElseThrow();
 		}
 	}
 
 	@GetMapping("/fast/own-class/infos/{name}")
 	Infos getInfosByOwnClass(@PathVariable String name) {
-		System.out.println("/fast/own-class/infos/" + name);
 		return getInfos(name);
 	}
 
 	@GetMapping("/slow/infos/{name}")
 	Infos getInfosSynchron(@PathVariable String name) {
-		System.out.println("/slow/own-class/infos/" + name);
 		return getSlowInfos(name);
 	}
 
 	@SneakyThrows
 	@GetMapping("/speaker/{name}")
 	Speaker getSpeaker(@PathVariable String name) {
-		System.out.println("/speaker/" + name);
 		try (var scope = new SpeakerTaskScope()) {
 			scope.fork(() -> fakeHttpService.retrieveTalk(name));
 			scope.fork(() -> getInfos(name));
