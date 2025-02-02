@@ -24,7 +24,13 @@ I have also added JMeter tests to show the performance gain compared to synchron
 I also used JMeter to do some manually Tests. I used 1000 users with ramp-up of 10 seconds and lifetime of 20 seconds.
 I added a sample .jmx under src/main/resources/JMeter:
  
- 
+| Endpoint | VirtualThreads enabled | Average response time |
+| :-------- | :------- | :------------------------- |
+| `api/slow/infos/Test` | `false` |up to 900ms |
+| `api/slow/infos/Test` | `true` | ~185ms |
+| `api/fast/own-class/infos/test` | `true` | ~92ms | 
+| `api/fast/java-class/infos/test` | `true` | ~92ms |
+
  
 ## Blocking-synchronous-approach:  
 this is the response of GET ...api/slow/infos/Test, if you use blocking code and does not enable virtual-threads in your application.properties. 
