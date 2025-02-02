@@ -18,7 +18,7 @@ public class FakeHttpService {
 
 	@SneakyThrows
 	public Infos retrieveInfoFromGoogle(String name) {
-		Thread.sleep(10);
+		Thread.sleep(20);
 		return new Infos(List.of(name, "Google", "18.10.1994"));
 	}
 

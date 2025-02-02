@@ -1,5 +1,6 @@
 package de.leifker.controller;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -26,11 +27,58 @@ public class MainController {
 	@Autowired
 	private FakeHttpService fakeHttpService;
 
+	/**
+	 * Shows how to use different expressions of StructuredTaskScope
+	 * (ShotdownOnSuccess, ShutdownOnFailure, "Normal")
+	 * 
+	 * @param name
+	 * @return
+	 */
 	@GetMapping("/fast/java-class/infos/{name}")
 	Infos getInfosByJavaClass(@PathVariable String name) {
 		return getAllAvailableInfos(name);
-//		return getAllInfosOrException(name);
 //		return getFastestInfos(name);
+//		return getAllInfosOrException(name);
+	}
+
+	/**
+	 * Uses a slow synchronous-approach
+	 * 
+	 * @param name
+	 * @return
+	 */
+	@GetMapping("/slow/infos/{name}")
+	Infos getInfosSynchron(@PathVariable String name) {
+		return getSlowInfos(name);
+	}
+
+	/**
+	 * Uses a self-implemented-version of StructuredTaskScope
+	 * 
+	 * @param name
+	 * @return
+	 */
+	@GetMapping("/fast/own-class/infos/{name}")
+	Infos getInfosByOwnClass(@PathVariable String name) {
+		return getInfos(name);
+	}
+
+	/**
+	 * Shows a self implemented version of StructuredTaskScope where multiple
+	 * response-types are handled
+	 * 
+	 * @param name
+	 * @return
+	 */
+	@SneakyThrows
+	@GetMapping("/speaker/{name}")
+	Speaker getSpeaker(@PathVariable String name) {
+		try (var scope = new SpeakerTaskScope()) {
+			scope.fork(() -> fakeHttpService.retrieveTalk(name));
+			scope.fork(() -> getInfos(name));
+			scope.join();
+			return scope.getSpeaker();
+		}
 	}
 
 	@SneakyThrows
@@ -86,27 +134,6 @@ public class MainController {
 		}
 	}
 
-	@GetMapping("/fast/own-class/infos/{name}")
-	Infos getInfosByOwnClass(@PathVariable String name) {
-		return getInfos(name);
-	}
-
-	@GetMapping("/slow/infos/{name}")
-	Infos getInfosSynchron(@PathVariable String name) {
-		return getSlowInfos(name);
-	}
-
-	@SneakyThrows
-	@GetMapping("/speaker/{name}")
-	Speaker getSpeaker(@PathVariable String name) {
-		try (var scope = new SpeakerTaskScope()) {
-			scope.fork(() -> fakeHttpService.retrieveTalk(name));
-			scope.fork(() -> getInfos(name));
-			scope.join();
-			return scope.getSpeaker();
-		}
-	}
-
 	@SneakyThrows
 	private Infos getInfos(String name) {
 		try (var scope = new InfoTaskScope()) {
@@ -120,7 +147,7 @@ public class MainController {
 
 	@SneakyThrows
 	private Infos getSlowInfos(String name) {
-		Collection<Infos> results = new ConcurrentLinkedQueue<>();
+		Collection<Infos> results = new ArrayList<>();
 		results.add(fakeHttpService.retrieveInfoFromGoogle(name));
 		results.add(fakeHttpService.retrieveInfoFromFacebookWorking(name));
 		results.add(fakeHttpService.retrieveInfoFromLinkedin(name));

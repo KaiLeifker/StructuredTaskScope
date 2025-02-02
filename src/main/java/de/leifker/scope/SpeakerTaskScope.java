@@ -9,19 +9,21 @@ import de.leifker.dto.Talk;
 
 public class SpeakerTaskScope extends StructuredTaskScope<SpeakerPart> {
 
-	  private volatile Talk talk;
-	  private volatile Infos infos;
+	private volatile Talk talk;
+	private volatile Infos infos;
 
-	  @Override
-	  protected void handleComplete(Subtask<? extends SpeakerPart> subtask) {
-	    switch (subtask.get()) {
-	      case Talk talk -> this.talk = talk;
-	      case Infos infos -> this.infos = infos;
-	    }
-	  }
-
-	  public Speaker getSpeaker() {
-	    return new Speaker(this.talk, this.infos);
-	  }
-
+	@Override
+	protected void handleComplete(Subtask<? extends SpeakerPart> subtask) {
+		// pattern Matching combined with sealed-classes and combined completeness check
+		// (no default-case)
+		switch (subtask.get()) {
+		case Talk talk -> this.talk = talk;
+		case Infos infos -> this.infos = infos;
+		}
 	}
+
+	public Speaker getSpeaker() {
+		return new Speaker(this.talk, this.infos);
+	}
+
+}
