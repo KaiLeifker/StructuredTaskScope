@@ -56,7 +56,7 @@ Calls to the FakeHttpService are asynchronous and non-blocking, so the execution
 
 
 
-## self-written-StructuredTaskScope-asynchronous-approach:
+## java-StructuredTaskScope-asynchronous-approach:
 this is the response of GET ...api/fast/java-class/infos/test. Virtual Threads are enabled.
 
 Calls to the FakeHttpService are asynchronous and non-blocking, so the execution-time is reduced. 
